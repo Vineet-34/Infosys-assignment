@@ -1,0 +1,25 @@
+
+Sample input
+
+http://localhost:9090/rewards?customerId=1&startDate=2024-01-01&endDate=2024-03-31
+[
+    {
+        "id": 1,
+        "customerId": 1,
+        "amount": 200.0,
+        "date": "2020-01-11"
+    },
+    {
+        "id": 2,
+        "customerId": 1,
+        "amount": 180.0,
+        "date": "2020-03-11"
+    },
+]
+
+
+Sample Output
+{
+    "monthlyPoints": 150,
+    "totalPoints": 150
+}

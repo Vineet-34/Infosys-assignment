@@ -1,7 +1,7 @@
 
 package com.java.infya.service;
 
-import com.java.infya.exception.TransactionCalculateExceptions;
+import com.java.infya.exception.RewardCalculationException;
 import com.java.infya.model.Transaction;
 import com.java.infya.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class TransactionService {
                             Collectors.groupingBy(t -> t.getDate().getMonth().toString(),
                                     Collectors.summingInt(this::calculatePoints))));
         } catch (Exception e) {
-            throw new TransactionCalculateExceptions("Error calculating reward points", e);
+            throw new RewardCalculationException("Error calculating reward points", e);
         }
     }
 
