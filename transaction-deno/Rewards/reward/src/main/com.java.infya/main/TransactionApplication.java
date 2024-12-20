@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringApplication
-@EntityScan("com.java")
+@EntityScan("com.java.model")
 public class TransactionApplication {
 
 	public static void main(String[] args) {
