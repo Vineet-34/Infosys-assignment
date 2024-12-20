@@ -1,0 +1,11 @@
+package com.java.infya.exception;
+
+public class TransactionCalculateExceptions extends RuntimeException {
+    public TransactionCalculateExceptions(String message) {
+        super(message);
+    }
+
+    public TransactionCalculateExceptions(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
