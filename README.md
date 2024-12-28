@@ -29,22 +29,14 @@ For example, a $120 purchase earns `2x$20 + 1x$50 = 90 points`.
 - RESTful API to retrieve reward points.
 
 ## Technologies
-- Java 1.8
+- Java 23
 - Spring Boot
-- Spring Data JPA
-- H2 Database
 - JUnit 5
 - Mockito
 
-The application will start on `http://localhost:9090`.
+## Server Port
+- 8080
+The application will start on `http://localhost:8080`.
 
 ## API Endpoints
- - http://localhost:9090/rewards?customerId=1&startDate=2024-01-01&endDate=2024-03-31
-
-## Sample Output
-```json
-{
-    "monthlyPoints": 90,
-    "totalPoints": 90
-}
-```
+- http://localhost:8080/calculate
