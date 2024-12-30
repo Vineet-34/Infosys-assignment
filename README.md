@@ -40,3 +40,38 @@ The application will start on `http://localhost:8080`.
 
 ## API Endpoints
 - http://localhost:8080/calculate
+
+## Sample Response
+
+### Sample input
+```json
+[
+    {
+        "customerId": "01",
+        "transactionDate": "2024-12-01",
+        "amount": 200.00
+
+    },
+    {
+        "customerId": "02",
+        "transactionDate": "2024-12-15",
+        "amount": 180.00
+    },
+    {
+        "customerId": "03",
+        "transactionDate": "2024-12-19",
+        "amount": 50.00
+    }
+]
+```
+
+### Sample Output
+```json
+{
+    "customerId": "01",
+    "monthlyPoints": {
+        "2024-12": 460
+    },
+    "totalPoints": 460
+}
+```
