@@ -1,6 +1,6 @@
 package com.reward.transaction.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
@@ -11,8 +11,7 @@ public class Customer {
     private Long id;
 
     private String customerId;
-    private String name;
-    private String email;
+
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
@@ -34,22 +33,6 @@ public class Customer {
 
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public List<Transaction> getTransactions() {

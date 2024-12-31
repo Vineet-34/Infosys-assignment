@@ -43,6 +43,7 @@ class TransactionServiceTest {
 
         transaction1 = new Transaction("customer123", 120, LocalDate.of(2024, 1, 15));
         transaction2 = new Transaction("customer123", 80, LocalDate.of(2024, 2, 10));
+        // transaction2 = new Transaction(2l,120L, 123.3,LocalDate.of(2024, 1, 10));
     }
 
     @Test

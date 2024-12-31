@@ -46,12 +46,31 @@ For example, a $120 purchase earns `2x$20 + 1x$50 = 90 points`.
 ## Server Port
 
 - 8080
+- 
+## Sample Response
 
 ## API Endpoints
 
-- http://localhost:8080/calculate/vineet01?startDate=2024-01-01&endDate=2024-03-31
+- http://localhost:8080/calculate/addTransaction
 
-## Sample Response
+```
+{
+"transactionDate":2024-01-01
+"amount": 100.0,
+"customer_id": 1
+}
+```
+
+## Sample output
+
+```
+{
+"status": 200,
+"message": "Transaction saved successfully"
+}
+```
+
+- http://localhost:8080/calculate/vineet01?startDate=2024-01-01&endDate=2024-03-31
 
 ### Sample input
 

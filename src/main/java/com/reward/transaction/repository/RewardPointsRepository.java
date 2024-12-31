@@ -2,6 +2,8 @@ package com.reward.transaction.repository;
 
 import com.reward.transaction.model.RewardPoints;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repository interface for managing {@link RewardPoints} entities.
@@ -14,6 +16,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * The {@link RewardPointsRepository} includes custom query methods for fetching reward points
  * associated with a specific customer based on their customer ID.
  */
+@Repository
 public interface RewardPointsRepository extends JpaRepository<RewardPoints, Long> {
     /**
      * Finds the {@link RewardPoints} entity for a given customer ID.

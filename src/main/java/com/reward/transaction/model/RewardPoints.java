@@ -1,9 +1,7 @@
 package com.reward.transaction.model;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.util.Map;
 
 @Entity
@@ -19,11 +17,7 @@ public class RewardPoints {
 
     private int totalPoints;
 
-    @ElementCollection
-    @MapKeyColumn(name = "month")
-    @Column(name = "points")
     private Map<String, Integer> monthlyPoints;
-
 
     public RewardPoints() {
     }
