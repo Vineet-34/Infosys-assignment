@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reward.transaction.model.RewardRequest;
 import com.reward.transaction.model.Transaction;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,13 +40,12 @@ public class TranscationControllerTest {
     @Test
     void testCalculateRewards() throws Exception {
         List<Transaction> transactions = Arrays.asList(
-                new Transaction("VINEET01", LocalDate.of(2024, 12, 15), 120),
-                new Transaction("VINEET01", LocalDate.of(2024, 12, 25), 80),
-                new Transaction("VINEET01", LocalDate.of(2024, 11, 15), 130),
-                new Transaction("VINEET01", LocalDate.of(2024, 10, 5), 55)
+                new Transaction("VINEET01", 120, LocalDate.of(2024, 12, 15)),
+                new Transaction("VINEET01", 80, LocalDate.of(2024, 12, 25)),
+                new Transaction("VINEET01", 130, LocalDate.of(2024, 11, 15)),
+                new Transaction("VINEET01", 55, LocalDate.of(2024, 10, 5))
         );
 
-        // Create the request body object
         RewardRequest rewardRequest = new RewardRequest(
                 "VINEET01",
                 "2024-10-01",
@@ -54,10 +54,8 @@ public class TranscationControllerTest {
 
         );
 
-        // Convert the request object to JSON
         String requestBody = objectMapper.writeValueAsString(rewardRequest);
 
-        // Send the POST request with query parameters startDate and endDate
         mockMvc.perform(post("/calculate?startDate=2024-10-01&endDate=2024-12-31")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -70,6 +68,7 @@ public class TranscationControllerTest {
     }
 
     @Test
+    @DisplayName("Test calculate points for empty transactions")
     void testCalculateRewards_withEmptyTransactions() throws Exception {
         List<Transaction> transactions = Arrays.asList();
 
@@ -92,10 +91,11 @@ public class TranscationControllerTest {
     }
 
     @Test
+    @DisplayName("Test if the range provided is invalid")
     void testCalculateRewards_withInvalidDateRange() throws Exception {
         List<Transaction> transactions = Arrays.asList(
-                new Transaction("VINEET01", LocalDate.of(2024, 12, 15), 120),
-                new Transaction("VINEET01", LocalDate.of(2024, 12, 25), 80)
+                new Transaction("VINEET01", 120, LocalDate.of(2024, 12, 15)),
+                new Transaction("VINEET01", 80, LocalDate.of(2024, 12, 25))
         );
 
         RewardRequest rewardRequest = new RewardRequest(

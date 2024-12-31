@@ -40,6 +40,7 @@ For example, a $120 purchase earns `2x$20 + 1x$50 = 90 points`.
 - Java 23
 - Spring Boot
 - JUnit 5
+- Mysql
 - Mockito
 
 ## Server Port
@@ -48,40 +49,17 @@ For example, a $120 purchase earns `2x$20 + 1x$50 = 90 points`.
 
 ## API Endpoints
 
-- http://localhost:8080/calculate?startDate=2024-10-01&endDate=2024-12-31
+- http://localhost:8080/calculate/vineet01?startDate=2024-01-01&endDate=2024-03-31
 
 ## Sample Response
 
 ### Sample input
 
-```json
-{
-  "customerId": "VINEET01",
-  "startDate": "2024-10-01",
-  "endDate": "2024-12-31",
-  "transactions": [
-    {
-      "customerId": "VINEET01",
-      "transactionDate": "2024-12-15",
-      "amount": 120
-    },
-    {
-      "customerId": "VINEET01",
-      "transactionDate": "2024-12-25",
-      "amount": 80
-    },
-    {
-      "customerId": "VINEET01",
-      "transactionDate": "2024-11-15",
-      "amount": 130
-    },
-    {
-      "customerId": "VINEET01",
-      "transactionDate": "2024-10-05",
-      "amount": 55
-    }
-  ]
-}
+```
+Transaction Date	Amount     	Reward Points
+2024-01-15      	$120	        90 points
+2024-02-10      	$80	            80 points
+2024-03-05      	$60	            10 points
 ```
 
 ### Sample Output

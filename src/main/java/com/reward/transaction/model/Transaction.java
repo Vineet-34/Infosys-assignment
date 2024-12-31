@@ -4,10 +4,10 @@ import java.time.LocalDate;
 
 public class Transaction {
     private String customerId;
-    private LocalDate transactionDate;
     private double amount;
+    private LocalDate transactionDate;
 
-    public Transaction(String customerId, LocalDate transactionDate, double amount) {
+    public Transaction(String customerId, double amount, LocalDate transactionDate) {
         this.customerId = customerId;
         this.transactionDate = transactionDate;
         this.amount = amount;
