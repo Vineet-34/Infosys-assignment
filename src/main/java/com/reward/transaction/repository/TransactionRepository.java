@@ -28,5 +28,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
      * @return A list of {@link Transaction} entities associated with the provided customer ID
      * and within the specified date range. Returns an empty list if no transactions are found.
      */
-    List<Transaction> findByCustomerIdAndTransactionDateBetween(String customerId, LocalDate startDate, LocalDate endDate);
+    List<Transaction> findByCustomerIdAndTransactionDateBetween(Long customerId, LocalDate startDate, LocalDate endDate);
 }

@@ -3,10 +3,8 @@ package com.reward.transaction.service;
 import com.reward.transaction.exception.InvalidTransactionException;
 import com.reward.transaction.exception.TransactionNotFoundException;
 import com.reward.transaction.model.MonthlyPoints;
-import com.reward.transaction.model.RewardPoints;
 import com.reward.transaction.model.RewardResponse;
 import com.reward.transaction.model.Transaction;
-import com.reward.transaction.repository.RewardPointsRepository;
 import com.reward.transaction.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,9 +23,6 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    @Autowired
-    private RewardPointsRepository rewardPointsRepository;
-
     /**
      * Calculates reward points for a given customer and transaction period.
      *
@@ -38,11 +33,17 @@ public class TransactionService {
      * @throws TransactionNotFoundException if no transactions are found for the customer in the given period
      * @throws InvalidTransactionException  if any of the transactions are invalid
      */
-    public RewardResponse calculatePoints(String customerId, String startDate, String endDate) {
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate end = LocalDate.parse(endDate);
-
-        List<Transaction> transactions = transactionRepository.findByCustomerIdAndTransactionDateBetween(customerId, start, end);
+    public RewardResponse calculatePoints(Long customerId, LocalDate startDate, LocalDate endDate) {
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null.");
+        }
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date.");
+        }
+        List<Transaction> transactions = transactionRepository.findByCustomerIdAndTransactionDateBetween(customerId, startDate, endDate);
 
         if (transactions == null || transactions.isEmpty()) {
             throw new TransactionNotFoundException("No transactions found for customer ID: " + customerId);
@@ -52,7 +53,7 @@ public class TransactionService {
         int totalPoints = 0;
 
         for (Transaction transaction : transactions) {
-            if (transaction.getCustomerId().equals(customerId) && isInRange(transaction.getTransactionDate(), start, end)) {
+            if (transaction.getId().equals(customerId) && isInRange(transaction.getTransactionDate(), startDate, endDate)) {
                 int points = calculatePoints(transaction.getAmount());
                 String monthKey = transaction.getTransactionDate().getYear() + "-" + String.format("%02d", transaction.getTransactionDate().getMonthValue());
 
@@ -70,24 +71,8 @@ public class TransactionService {
 
                 totalPoints += points;
             } else {
-                throw new InvalidTransactionException("Transaction " + transaction.getCustomerId() + " for customer ID " + customerId + " is invalid.");
+                throw new InvalidTransactionException("Transaction " + transaction.getId() + " for customer ID " + customerId + " is invalid.");
             }
-        }
-
-        RewardPoints rewardPoints = new RewardPoints();
-        rewardPoints.setId(Long.valueOf(customerId));
-        rewardPoints.setTotalPoints(totalPoints);
-        rewardPoints.setMonthlyPoints(monthlyPointsList); // Set the new list of MonthlyPoints
-
-        RewardPoints existingRewardPoints = rewardPointsRepository.findByCustomerId(customerId);
-        if (existingRewardPoints != null) {
-            rewardPoints.setId(existingRewardPoints.getId());
-        }
-
-        try {
-            rewardPointsRepository.save(rewardPoints);
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while saving reward points: " + e.getMessage());
         }
 
         return new RewardResponse(customerId, totalPoints, monthlyPointsList); // Return the list of MonthlyPoints in the response

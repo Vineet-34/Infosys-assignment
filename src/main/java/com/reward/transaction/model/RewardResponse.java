@@ -4,15 +4,15 @@ import java.util.List;
 
 public class RewardResponse {
 
-    private String customerId;
+    private Long customerId;
     private int totalPoints;
     private List<MonthlyPoints> monthlyPoints;
 
-    public String getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(String customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
@@ -32,7 +32,7 @@ public class RewardResponse {
         this.monthlyPoints = monthlyPoints;
     }
 
-    public RewardResponse(String customerId, int totalPoints, List<MonthlyPoints> monthlyPoints) {
+    public RewardResponse(Long customerId, int totalPoints, List<MonthlyPoints> monthlyPoints) {
         this.customerId = customerId;
         this.totalPoints = totalPoints;
         this.monthlyPoints = monthlyPoints;

@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 /**
  * REST endpoint to calculate reward points for a customer within a specified time frame.
  * <p>
@@ -43,11 +45,11 @@ public class TransactionController {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    @GetMapping("/calculate")
+    @GetMapping("/calculate/{customerId}")
     public RewardResponse calculateRewards(
-            @PathVariable String customerId,
-            @RequestParam String startDate,
-            @RequestParam String endDate) {
+            @PathVariable Long customerId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
         try {
             RewardResponse rewardResponse = transactionService.calculatePoints(customerId, startDate, endDate);
             return new ResponseEntity<>(rewardResponse, HttpStatus.OK).getBody();

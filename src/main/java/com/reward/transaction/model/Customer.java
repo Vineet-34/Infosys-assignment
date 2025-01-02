@@ -12,19 +12,18 @@ public class Customer {
 
     private String customerId;
 
-
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    private List<RewardPoints> rewardPoints;
-
-    public Long getId() {
-        return id;
+    public Customer(String customerId, List<Transaction> transactions) {
+        this.customerId = customerId;
+        this.transactions = transactions;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Customer() {
+    }
+
+    public Customer(Long customerId) {
     }
 
     public String getCustomerId() {
@@ -41,13 +40,5 @@ public class Customer {
 
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
-    }
-
-    public List<RewardPoints> getRewardPoints() {
-        return rewardPoints;
-    }
-
-    public void setRewardPoints(List<RewardPoints> rewardPoints) {
-        this.rewardPoints = rewardPoints;
     }
 }

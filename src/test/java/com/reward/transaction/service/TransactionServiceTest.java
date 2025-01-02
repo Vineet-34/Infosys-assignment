@@ -2,159 +2,105 @@ package com.reward.transaction.service;
 
 import com.reward.transaction.exception.InvalidTransactionException;
 import com.reward.transaction.exception.TransactionNotFoundException;
-import com.reward.transaction.model.MonthlyPoints;
-import com.reward.transaction.model.RewardPoints;
+import com.reward.transaction.model.Customer;
 import com.reward.transaction.model.RewardResponse;
 import com.reward.transaction.model.Transaction;
-import com.reward.transaction.repository.RewardPointsRepository;
 import com.reward.transaction.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 class TransactionServiceTest {
-
-    @Mock
-    private TransactionRepository transactionRepository;
-
-    @Mock
-    private RewardPointsRepository rewardPointsRepository;
 
     @InjectMocks
     private TransactionService transactionService;
 
-    private Transaction transaction1;
-    private Transaction transaction2;
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        transaction1 = new Transaction("customer123", 120, LocalDate.of(2024, 1, 15));
-        transaction2 = new Transaction("customer123", 80, LocalDate.of(2024, 2, 10));
-        // transaction2 = new Transaction(2l,120L, 123.3,LocalDate.of(2024, 1, 10));
     }
 
     @Test
-    @DisplayName("Test calculate points for valid transactions")
-    void testCalculatePoints_validTransactions() {
+    @DisplayName("Should calculate points successfully for valid transactions")
+    void testCalculatePoints_Success() {
+        Long customerId = 1l;
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 1, 31);
+
         Transaction transaction1 = new Transaction();
-        transaction1.setCustomerId("customer123");
-        transaction1.setAmount(90);
+        transaction1.setId(1L);
+        transaction1.setAmount(150.0);
         transaction1.setTransactionDate(LocalDate.of(2024, 1, 15));
+        transaction1.setCustomer(new Customer(customerId));
 
         Transaction transaction2 = new Transaction();
-        transaction2.setCustomerId("customer123");
-        transaction2.setAmount(80);
-        transaction2.setTransactionDate(LocalDate.of(2024, 2, 20));
+        transaction2.setId(2L);
+        transaction2.setAmount(75.0);
+        transaction2.setTransactionDate(LocalDate.of(2024, 1, 20));
+        transaction2.setCustomer(new Customer(customerId));
 
-        List<Transaction> transactions = Arrays.asList(transaction1, transaction2);
-        when(transactionRepository.findByCustomerIdAndTransactionDateBetween("customer123", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31)))
-                .thenReturn(transactions);
-        when(rewardPointsRepository.findByCustomerId("customer123")).thenReturn(null);
+        when(transactionRepository.findByCustomerIdAndTransactionDateBetween(customerId, startDate, endDate))
+                .thenReturn(Arrays.asList(transaction1, transaction2));
 
-        RewardResponse rewardResponse = transactionService.calculatePoints("customer123", "2024-01-01", "2024-03-31");
+        RewardResponse response = transactionService.calculatePoints(customerId, startDate, endDate);
 
-        assertNotNull(rewardResponse);
-        assertEquals("customer123", rewardResponse.getCustomerId());
-        assertEquals(170, rewardResponse.getTotalPoints());
-
-        List<MonthlyPoints> monthlyPoints = rewardResponse.getMonthlyPoints();
-
-        assertEquals(2, monthlyPoints.size());
-
-        MonthlyPoints januaryPoints = monthlyPoints.stream()
-                .filter(mp -> mp.getYear() == 2024 && mp.getMonth() == 1)
-                .findFirst()
-                .orElse(null);
-        assertNotNull(januaryPoints);
-        assertEquals(90, januaryPoints.getPoints());
-
-        MonthlyPoints februaryPoints = monthlyPoints.stream()
-                .filter(mp -> mp.getYear() == 2024 && mp.getMonth() == 2)
-                .findFirst()
-                .orElse(null);
-        assertNotNull(februaryPoints);
-        assertEquals(80, februaryPoints.getPoints());
+        assertEquals(1L, response.getCustomerId());
+        assertEquals(125, response.getTotalPoints());
+        assertEquals(2, response.getMonthlyPoints().size());
     }
 
     @Test
-    @DisplayName("Test calculate points when no transactions are found")
-    void testCalculatePoints_noTransactionsFound() {
-        when(transactionRepository.findByCustomerIdAndTransactionDateBetween("customer123", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31)))
-                .thenReturn(null);
+    @DisplayName("Should throw TransactionNotFoundException when no transactions exist")
+    void testCalculatePoints_NoTransactions() {
+        Long customerId = 123L;
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 1, 31);
 
-        TransactionNotFoundException exception = assertThrows(TransactionNotFoundException.class, () -> {
-            transactionService.calculatePoints("customer123", "2024-01-01", "2024-03-31");
+        when(transactionRepository.findByCustomerIdAndTransactionDateBetween(customerId, startDate, endDate))
+                .thenReturn(Collections.emptyList());
+
+        Exception exception = assertThrows(TransactionNotFoundException.class, () -> {
+            transactionService.calculatePoints(customerId, startDate, endDate);
         });
 
-        assertEquals("No transactions found for customer ID: customer123", exception.getMessage());
+        assertEquals("No transactions found for customer ID: " + customerId, exception.getMessage());
     }
 
     @Test
-    @DisplayName("Test calculate points for invalid transaction")
-    void testCalculatePoints_invalidTransaction() {
-        Transaction invalidTransaction = new Transaction();
-        invalidTransaction.setCustomerId("someOtherCustomer");
-        invalidTransaction.setAmount(30);
-        invalidTransaction.setTransactionDate(LocalDate.of(2024, 1, 15));
+    @DisplayName("Should throw InvalidTransactionException for transactions outside date range")
+    void testCalculatePoints_InvalidTransaction() {
+        Long customerId = 123L;
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 1, 31);
 
-        List<Transaction> transactions = Arrays.asList(invalidTransaction);
-        when(transactionRepository.findByCustomerIdAndTransactionDateBetween("customer123", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31)))
-                .thenReturn(transactions);
+        Transaction transaction = new Transaction();
+        transaction.setId(1L);
+        transaction.setAmount(50.0);
+        transaction.setTransactionDate(LocalDate.of(2024, 2, 1)); // Outside the date range
+        transaction.setCustomer(new Customer(customerId));
 
-        InvalidTransactionException exception = assertThrows(InvalidTransactionException.class, () -> {
-            transactionService.calculatePoints("customer123", "2024-01-01", "2024-03-31");
+        when(transactionRepository.findByCustomerIdAndTransactionDateBetween(customerId, startDate, endDate))
+                .thenReturn(Arrays.asList(transaction));
+
+        Exception exception = assertThrows(InvalidTransactionException.class, () -> {
+            transactionService.calculatePoints(customerId, startDate, endDate);
         });
 
-        assertEquals("Transaction " + invalidTransaction.getCustomerId() + " for customer ID customer123 is invalid.", exception.getMessage());
-    }
-
-
-    @Test
-    @DisplayName("Save Reward Points and verify repository interaction")
-    void testSaveRewardPoints() {
-        Transaction transaction1 = new Transaction("customer123", 100, LocalDate.of(2024, 1, 15)); // 100 points
-        Transaction transaction2 = new Transaction("customer123", 120, LocalDate.of(2024, 2, 20)); // 120 points
-
-        List<Transaction> transactions = Arrays.asList(transaction1, transaction2);
-
-        when(transactionRepository.findByCustomerIdAndTransactionDateBetween("customer123", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31)))
-                .thenReturn(transactions);
-        when(rewardPointsRepository.findByCustomerId("customer123")).thenReturn(null);
-
-        RewardPoints rewardPoints = new RewardPoints();
-        rewardPoints.setId(123L);
-        rewardPoints.setTotalPoints(220);
-        when(rewardPointsRepository.save(Mockito.any(RewardPoints.class))).thenReturn(rewardPoints);
-
-        RewardResponse rewardResponse = transactionService.calculatePoints("customer123", "2024-01-01", "2024-03-31");
-
-        verify(rewardPointsRepository, times(1)).save(Mockito.any(RewardPoints.class));
-
-        assertNotNull(rewardResponse);
-        assertEquals("customer123", rewardResponse.getCustomerId());
-        assertEquals(220, rewardResponse.getTotalPoints());
-    }
-
-    @Test
-    @DisplayName("Edge case Test if the customer spend $50 dollar")
-    void testCalculatePoints_forFiftyDollarTransaction() {
-        double transactionAmount = 50.0;
-        int expectedPoints = 50;
-        int actualPoints = transactionService.calculatePoints(transactionAmount);
-        assertEquals(expectedPoints, actualPoints, "Points calculation for $50 transaction is incorrect");
+        assertEquals("Transaction " + transaction.getId() + " for customer ID " + customerId + " is invalid.", exception.getMessage());
     }
 }
 

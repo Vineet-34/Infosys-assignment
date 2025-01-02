@@ -46,7 +46,7 @@ For example, a $120 purchase earns `2x$20 + 1x$50 = 90 points`.
 ## Server Port
 
 - 8080
-- 
+-
 ## Sample Response
 
 ## API Endpoints
@@ -70,22 +70,13 @@ For example, a $120 purchase earns `2x$20 + 1x$50 = 90 points`.
 }
 ```
 
-- http://localhost:8080/calculate/vineet01?startDate=2024-01-01&endDate=2024-03-31
-
-### Sample input
-
-```
-Transaction Date	Amount     	Reward Points
-2024-01-15      	$120	        90 points
-2024-02-10      	$80	            80 points
-2024-03-05      	$60	            10 points
-```
+- http://localhost:8080/calculate/{customerId}?startDate=2024-01-01&endDate=2024-03-31
 
 ### Sample Output
 
-```json
+```json 
 {
-  "customerId": "VINEET01",
+  "customerId": "12",
   "totalPoints": 180,
   "monthlyPoints": [
     {
