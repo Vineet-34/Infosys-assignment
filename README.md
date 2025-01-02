@@ -86,11 +86,23 @@ Transaction Date	Amount     	Reward Points
 ```json
 {
   "customerId": "VINEET01",
-  "totalPoints": 235,
-  "monthlyPoints": {
-    "2024-11": 110,
-    "2024-10": 5,
-    "2024-12": 120
-  }
+  "totalPoints": 180,
+  "monthlyPoints": [
+    {
+      "year": 2024,
+      "month": "NOVEMBER",
+      "points": 90
+    },
+    {
+      "year": 2024,
+      "month": "JANUARY",
+      "points": 80
+    },
+    {
+      "year": 2024,
+      "month": "FEBRUARY",
+      "points": 10
+    }
+  ]
 }
 ```

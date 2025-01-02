@@ -1,18 +1,12 @@
 package com.reward.transaction.model;
 
-import java.util.Map;
+import java.util.List;
 
 public class RewardResponse {
 
     private String customerId;
     private int totalPoints;
-    private Map<String, Integer> monthlyPoints;
-
-    public RewardResponse(String customerId, int totalPoints, Map<String, Integer> monthlyPoints) {
-        this.customerId = customerId;
-        this.totalPoints = totalPoints;
-        this.monthlyPoints = monthlyPoints;
-    }
+    private List<MonthlyPoints> monthlyPoints;
 
     public String getCustomerId() {
         return customerId;
@@ -30,11 +24,20 @@ public class RewardResponse {
         this.totalPoints = totalPoints;
     }
 
-    public Map<String, Integer> getMonthlyPoints() {
+    public List<MonthlyPoints> getMonthlyPoints() {
         return monthlyPoints;
     }
 
-    public void setMonthlyPoints(Map<String, Integer> monthlyPoints) {
+    public void setMonthlyPoints(List<MonthlyPoints> monthlyPoints) {
         this.monthlyPoints = monthlyPoints;
+    }
+
+    public RewardResponse(String customerId, int totalPoints, List<MonthlyPoints> monthlyPoints) {
+        this.customerId = customerId;
+        this.totalPoints = totalPoints;
+        this.monthlyPoints = monthlyPoints;
+    }
+
+    public RewardResponse() {
     }
 }

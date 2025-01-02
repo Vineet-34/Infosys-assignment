@@ -2,6 +2,7 @@ package com.reward.transaction.service;
 
 import com.reward.transaction.exception.InvalidTransactionException;
 import com.reward.transaction.exception.TransactionNotFoundException;
+import com.reward.transaction.model.MonthlyPoints;
 import com.reward.transaction.model.RewardPoints;
 import com.reward.transaction.model.RewardResponse;
 import com.reward.transaction.model.Transaction;
@@ -18,7 +19,6 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -49,6 +49,16 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Test calculate points for valid transactions")
     void testCalculatePoints_validTransactions() {
+        Transaction transaction1 = new Transaction();
+        transaction1.setCustomerId("customer123");
+        transaction1.setAmount(90);
+        transaction1.setTransactionDate(LocalDate.of(2024, 1, 15));
+
+        Transaction transaction2 = new Transaction();
+        transaction2.setCustomerId("customer123");
+        transaction2.setAmount(80);
+        transaction2.setTransactionDate(LocalDate.of(2024, 2, 20));
+
         List<Transaction> transactions = Arrays.asList(transaction1, transaction2);
         when(transactionRepository.findByCustomerIdAndTransactionDateBetween("customer123", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31)))
                 .thenReturn(transactions);
@@ -58,10 +68,25 @@ class TransactionServiceTest {
 
         assertNotNull(rewardResponse);
         assertEquals("customer123", rewardResponse.getCustomerId());
-        assertEquals(220, rewardResponse.getTotalPoints());
-        Map<String, Integer> monthlyPoints = rewardResponse.getMonthlyPoints();
-        assertEquals(90, monthlyPoints.get("2024-01"));
-        assertEquals(80, monthlyPoints.get("2024-02"));
+        assertEquals(170, rewardResponse.getTotalPoints());
+
+        List<MonthlyPoints> monthlyPoints = rewardResponse.getMonthlyPoints();
+
+        assertEquals(2, monthlyPoints.size());
+
+        MonthlyPoints januaryPoints = monthlyPoints.stream()
+                .filter(mp -> mp.getYear() == 2024 && mp.getMonth() == 1)
+                .findFirst()
+                .orElse(null);
+        assertNotNull(januaryPoints);
+        assertEquals(90, januaryPoints.getPoints());
+
+        MonthlyPoints februaryPoints = monthlyPoints.stream()
+                .filter(mp -> mp.getYear() == 2024 && mp.getMonth() == 2)
+                .findFirst()
+                .orElse(null);
+        assertNotNull(februaryPoints);
+        assertEquals(80, februaryPoints.getPoints());
     }
 
     @Test
@@ -80,7 +105,11 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Test calculate points for invalid transaction")
     void testCalculatePoints_invalidTransaction() {
-        Transaction invalidTransaction = new Transaction("customer123", 30, LocalDate.of(2024, 1, 15));
+        Transaction invalidTransaction = new Transaction();
+        invalidTransaction.setCustomerId("someOtherCustomer");
+        invalidTransaction.setAmount(30);
+        invalidTransaction.setTransactionDate(LocalDate.of(2024, 1, 15));
+
         List<Transaction> transactions = Arrays.asList(invalidTransaction);
         when(transactionRepository.findByCustomerIdAndTransactionDateBetween("customer123", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31)))
                 .thenReturn(transactions);
@@ -89,14 +118,18 @@ class TransactionServiceTest {
             transactionService.calculatePoints("customer123", "2024-01-01", "2024-03-31");
         });
 
-        assertEquals("Transaction customer123 for customer ID customer123 is invalid.", exception.getMessage());
+        assertEquals("Transaction " + invalidTransaction.getCustomerId() + " for customer ID customer123 is invalid.", exception.getMessage());
     }
 
 
     @Test
-    @DisplayName("Test save reward points to the repository")
+    @DisplayName("Save Reward Points and verify repository interaction")
     void testSaveRewardPoints() {
+        Transaction transaction1 = new Transaction("customer123", 100, LocalDate.of(2024, 1, 15)); // 100 points
+        Transaction transaction2 = new Transaction("customer123", 120, LocalDate.of(2024, 2, 20)); // 120 points
+
         List<Transaction> transactions = Arrays.asList(transaction1, transaction2);
+
         when(transactionRepository.findByCustomerIdAndTransactionDateBetween("customer123", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31)))
                 .thenReturn(transactions);
         when(rewardPointsRepository.findByCustomerId("customer123")).thenReturn(null);
@@ -106,10 +139,13 @@ class TransactionServiceTest {
         rewardPoints.setTotalPoints(220);
         when(rewardPointsRepository.save(Mockito.any(RewardPoints.class))).thenReturn(rewardPoints);
 
-        RewardResponse rewardResponse = transactionService.calculatePoints("123L", "2024-01-01", "2024-03-31");
+        RewardResponse rewardResponse = transactionService.calculatePoints("customer123", "2024-01-01", "2024-03-31");
 
         verify(rewardPointsRepository, times(1)).save(Mockito.any(RewardPoints.class));
+
         assertNotNull(rewardResponse);
+        assertEquals("customer123", rewardResponse.getCustomerId());
+        assertEquals(220, rewardResponse.getTotalPoints());
     }
 
     @Test

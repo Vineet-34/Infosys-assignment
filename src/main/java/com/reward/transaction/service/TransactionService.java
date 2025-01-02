@@ -2,6 +2,7 @@ package com.reward.transaction.service;
 
 import com.reward.transaction.exception.InvalidTransactionException;
 import com.reward.transaction.exception.TransactionNotFoundException;
+import com.reward.transaction.model.MonthlyPoints;
 import com.reward.transaction.model.RewardPoints;
 import com.reward.transaction.model.RewardResponse;
 import com.reward.transaction.model.Transaction;
@@ -11,9 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Represents a service to calculate reward points.
@@ -48,14 +48,26 @@ public class TransactionService {
             throw new TransactionNotFoundException("No transactions found for customer ID: " + customerId);
         }
 
-        Map<String, Integer> monthlyPoints = new HashMap<>();
+        List<MonthlyPoints> monthlyPointsList = new ArrayList<>();
         int totalPoints = 0;
 
         for (Transaction transaction : transactions) {
             if (transaction.getCustomerId().equals(customerId) && isInRange(transaction.getTransactionDate(), start, end)) {
                 int points = calculatePoints(transaction.getAmount());
-                String month = transaction.getTransactionDate().getYear() + "-" + String.format("%02d", transaction.getTransactionDate().getMonthValue());
-                monthlyPoints.put(month, monthlyPoints.getOrDefault(month, 0) + points);
+                String monthKey = transaction.getTransactionDate().getYear() + "-" + String.format("%02d", transaction.getTransactionDate().getMonthValue());
+
+                MonthlyPoints monthlyPoints = monthlyPointsList.stream()
+                        .filter(mp -> mp.getYear() == transaction.getTransactionDate().getYear() && mp.getMonth() == transaction.getTransactionDate().getMonthValue())
+                        .findFirst()
+                        .orElse(null);
+
+                if (monthlyPoints == null) {
+                    monthlyPoints = new MonthlyPoints(transaction.getTransactionDate().getYear(), transaction.getTransactionDate().getMonthValue(), points);
+                    monthlyPointsList.add(monthlyPoints);
+                } else {
+                    monthlyPoints.setPoints(monthlyPoints.getPoints() + points);
+                }
+
                 totalPoints += points;
             } else {
                 throw new InvalidTransactionException("Transaction " + transaction.getCustomerId() + " for customer ID " + customerId + " is invalid.");
@@ -65,7 +77,7 @@ public class TransactionService {
         RewardPoints rewardPoints = new RewardPoints();
         rewardPoints.setId(Long.valueOf(customerId));
         rewardPoints.setTotalPoints(totalPoints);
-        rewardPoints.setMonthlyPoints(monthlyPoints);
+        rewardPoints.setMonthlyPoints(monthlyPointsList); // Set the new list of MonthlyPoints
 
         RewardPoints existingRewardPoints = rewardPointsRepository.findByCustomerId(customerId);
         if (existingRewardPoints != null) {
@@ -78,7 +90,7 @@ public class TransactionService {
             throw new RuntimeException("An error occurred while saving reward points: " + e.getMessage());
         }
 
-        return new RewardResponse(customerId, totalPoints, monthlyPoints);
+        return new RewardResponse(customerId, totalPoints, monthlyPointsList); // Return the list of MonthlyPoints in the response
     }
 
     /**

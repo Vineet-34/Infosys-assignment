@@ -25,6 +25,9 @@ public class Transaction {
         this.amount = amount;
     }
 
+    public Transaction() {
+    }
+
     public String getCustomerId() {
         return customerId;
     }
@@ -48,4 +51,5 @@ public class Transaction {
     public void setAmount(double amount) {
         this.amount = amount;
     }
+
 }

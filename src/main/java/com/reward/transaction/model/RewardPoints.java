@@ -2,7 +2,7 @@ package com.reward.transaction.model;
 
 import jakarta.persistence.*;
 
-import java.util.Map;
+import java.util.List;
 
 @Entity
 public class RewardPoints {
@@ -17,9 +17,17 @@ public class RewardPoints {
 
     private int totalPoints;
 
-    private Map<String, Integer> monthlyPoints;
+    private List<MonthlyPoints> monthlyPoints;
+
+    public RewardPoints(Long id, Customer customer, int totalPoints, List<MonthlyPoints> monthlyPoints) {
+        this.id = id;
+        this.customer = customer;
+        this.totalPoints = totalPoints;
+        this.monthlyPoints = monthlyPoints;
+    }
 
     public RewardPoints() {
+
     }
 
     public Long getId() {
@@ -46,20 +54,12 @@ public class RewardPoints {
         this.totalPoints = totalPoints;
     }
 
-    public Map<String, Integer> getMonthlyPoints() {
+    public List<MonthlyPoints> getMonthlyPoints() {
         return monthlyPoints;
     }
 
-    public void setMonthlyPoints(Map<String, Integer> monthlyPoints) {
+    public void setMonthlyPoints(List<MonthlyPoints> monthlyPoints) {
         this.monthlyPoints = monthlyPoints;
     }
-
-    public RewardPoints(Customer customer, Long id, int totalPoints, Map<String, Integer> monthlyPoints) {
-        this.customer = customer;
-        this.id = id;
-        this.totalPoints = totalPoints;
-        this.monthlyPoints = monthlyPoints;
-    }
-
 }
 
